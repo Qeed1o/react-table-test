@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
   Box,
-  Container,
   Paper,
   TextField,
   Button,
@@ -9,7 +8,18 @@ import {
   FormControlLabel,
   Typography,
   CircularProgress,
+  InputAdornment,
+  IconButton,
+  Divider,
 } from '@mui/material';
+import {
+  Person,
+  Lock,
+  Visibility,
+  VisibilityOff,
+  Clear,
+  VolumeUp,
+} from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { loginAsync, clearError } from '../store/slices/authSlice';
 import { showToast } from '../store/slices/toastSlice';
@@ -24,6 +34,8 @@ const LoginPage = () => {
     password: '',
     rememberMe: false,
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState<{
     login?: string;
@@ -93,45 +105,105 @@ const LoginPage = () => {
     }
   };
 
+  const handleClearLogin = () => {
+    setCredentials(prev => ({
+      ...prev,
+      login: '',
+    }));
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        margin: 0,
+        padding: 2,
+      }}
+    >
+      <Paper
+        elevation={2}
         sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          padding: 4,
+          width: '100%',
+          maxWidth: 515,
+          borderRadius: 3,
         }}
       >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Вход в систему
+          {/* Icon */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <VolumeUp sx={{ fontSize: 48, color: '#1976d2' }} />
+          </Box>
+
+          {/* Title */}
+          <Typography
+            component="h1"
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: 600, mb: 1 }}
+          >
+            Добро пожаловать!
           </Typography>
-          
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+
+          {/* Subtitle */}
+          <Typography
+            variant="body2"
+            align="center"
+            color="text.secondary"
+            sx={{ mb: 4 }}
+          >
+            Пожалуйста, авторизируйтесь
+          </Typography>
+
+          <Box component="form" onSubmit={handleSubmit}>
+            {/* Login Field */}
             <TextField
-              margin="normal"
-              required
               fullWidth
               id="login"
-              label="Логин"
+              placeholder="Логин"
               name="login"
               autoComplete="username"
-              autoFocus
               value={credentials.login}
               onChange={handleInputChange('login')}
               error={!!fieldErrors.login}
               helperText={fieldErrors.login}
               disabled={isLoading}
+              sx={{ mb: 2 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Person sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: credentials.login && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClearLogin}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      <Clear sx={{ fontSize: 20 }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-            
+
+            {/* Password Field */}
             <TextField
-              margin="normal"
-              required
               fullWidth
               name="password"
-              label="Пароль"
-              type="password"
+              placeholder="Пароль"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="current-password"
               value={credentials.password}
@@ -139,32 +211,97 @@ const LoginPage = () => {
               error={!!fieldErrors.password}
               helperText={fieldErrors.password}
               disabled={isLoading}
+              sx={{ mb: 2 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleTogglePasswordVisibility}
+                      edge="end"
+                      disabled={isLoading}
+                    >
+                      {showPassword ? (
+                        <VisibilityOff sx={{ fontSize: 20 }} />
+                      ) : (
+                        <Visibility sx={{ fontSize: 20 }} />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
             />
-            
+
+            {/* Remember Me Checkbox */}
             <FormControlLabel
               control={
                 <Checkbox
                   checked={credentials.rememberMe}
                   onChange={handleInputChange('rememberMe')}
                   disabled={isLoading}
+                  sx={{ '&.Mui-checked': { color: '#1976d2' } }}
                 />
               }
-              label="Запомнить меня"
+              label="Запомнить данные"
+              sx={{ mb: 3 }}
             />
-            
+
+            {/* Login Button */}
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{
+                mb: 2,
+                py: 1.5,
+                backgroundColor: '#1976d2',
+                '&:hover': {
+                  backgroundColor: '#1565c0',
+                },
+              }}
               disabled={isLoading}
             >
-              {isLoading ? <CircularProgress size={24} /> : 'Войти'}
+              {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Войти'}
             </Button>
+
+            {/* Divider */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Divider sx={{ flex: 1 }} />
+              <Typography variant="body2" sx={{ px: 2, color: 'text.secondary' }}>
+                или
+              </Typography>
+              <Divider sx={{ flex: 1 }} />
+            </Box>
+
+            {/* No Account Link */}
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                Нет аккаунта?{' '}
+                <Button
+                  variant="text"
+                  sx={{
+                    p: 0,
+                    minWidth: 'auto',
+                    textTransform: 'none',
+                    color: '#1976d2',
+                    fontWeight: 600,
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      textDecoration: 'underline',
+                    },
+                  }}
+                >
+                  Создать
+                </Button>
+              </Typography>
+            </Box>
           </Box>
         </Paper>
-      </Box>
-    </Container>
+    </Box>
   );
 };
 
