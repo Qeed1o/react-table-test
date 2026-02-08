@@ -15,6 +15,8 @@ import {
   NavigateNext as NavigateNextIcon,
   Add as AddIcon,
   MoreVert as MoreVertIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  ArrowDownward as ArrowDownwardIcon,
 } from '@mui/icons-material';
 import { useState, memo, useMemo, useCallback } from 'react';
 import type { Product } from '../types';
@@ -34,6 +36,11 @@ interface ProductListProps {
   };
   onPageChange: (page: number) => void;
   isLoading: boolean;
+  sorting: {
+    field: keyof Product;
+    direction: 'asc' | 'desc';
+  };
+  onSortingChange: (field: keyof Product) => void;
 }
 
 // Стили для таблицы
@@ -56,11 +63,24 @@ const paginationButtonStyles = {
   '&:disabled': { backgroundColor: '#f5f5f5' },
 };
 
+const sortableHeaderStyles = {
+  cursor: 'pointer',
+  userSelect: 'none' as const,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1,
+  '&:hover': {
+    color: '#1976D2',
+  },
+};
+
 const ProductList = memo(({ 
   products, 
   pagination, 
   onPageChange, 
-  isLoading
+  isLoading,
+  sorting,
+  onSortingChange
 }: ProductListProps) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const dispatch = useAppDispatch();
@@ -110,7 +130,21 @@ const ProductList = memo(({
     dispatch(openEditModal(productId));
   }, [dispatch]);
 
-  // Вспомогательные функции больше не нужны здесь, так как они вынесены в компоненты
+  const handleSort = useCallback((field: keyof Product) => {
+    onSortingChange(field);
+  }, [onSortingChange]);
+
+  const renderSortIcon = (field: keyof Product) => {
+    if (sorting.field !== field) {
+      return null;
+    }
+    
+    return sorting.direction === 'asc' ? (
+      <ArrowUpwardIcon sx={{ fontSize: 16 }} />
+    ) : (
+      <ArrowDownwardIcon sx={{ fontSize: 16 }} />
+    );
+  };
 
   const isAllSelected = products.length > 0 && selectedRows.size === products.length;
   const isIndeterminate = selectedRows.size > 0 && selectedRows.size < products.length;
@@ -128,11 +162,41 @@ const ProductList = memo(({
                   onChange={(e) => handleSelectAll(e.target.checked)}
                 />
               </TableCell>
-              <TableCell sx={tableHeaderStyles}>Наименование</TableCell>
-              <TableCell sx={tableHeaderStyles}>Вендор</TableCell>
-              <TableCell sx={tableHeaderStyles}>Артикул</TableCell>
-              <TableCell sx={tableHeaderStyles}>Оценка</TableCell>
-              <TableCell sx={tableHeaderStyles}>Цена, &#x20BD;</TableCell>
+              <TableCell 
+                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                onClick={() => handleSort('name')}
+              >
+                Наименование
+                {renderSortIcon('name')}
+              </TableCell>
+              <TableCell 
+                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                onClick={() => handleSort('vendor')}
+              >
+                Вендор
+                {renderSortIcon('vendor')}
+              </TableCell>
+              <TableCell 
+                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                onClick={() => handleSort('sku')}
+              >
+                Артикул
+                {renderSortIcon('sku')}
+              </TableCell>
+              <TableCell 
+                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                onClick={() => handleSort('rating')}
+              >
+                Оценка
+                {renderSortIcon('rating')}
+              </TableCell>
+              <TableCell 
+                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                onClick={() => handleSort('price')}
+              >
+                Цена, &#x20BD;
+                {renderSortIcon('price')}
+              </TableCell>
               <TableCell /> {/* For action buttons */}
             </TableRow>
           </TableHead>

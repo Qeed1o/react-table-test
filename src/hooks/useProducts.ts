@@ -15,15 +15,17 @@ export const useProducts = () => {
   } = useAppSelector((state) => state.products);
 
   const fetchProducts = useCallback(
-    (page?: number, limit?: number, searchQuery?: string) => {
+    (page?: number, limit?: number, searchQuery?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') => {
       dispatch(setLoading(true));
       return dispatch(fetchProductsAsync({
         page: page || pagination.page,
         limit: limit || pagination.limit,
         search: searchQuery !== undefined ? searchQuery : search,
+        sortBy: sortBy || sorting.field,
+        order: sortOrder || sorting.direction,
       }));
     },
-    [dispatch, pagination.page, pagination.limit, search]
+    [dispatch, pagination.page, pagination.limit, search, sorting.field, sorting.direction]
   );
 
   const changePage = useCallback(

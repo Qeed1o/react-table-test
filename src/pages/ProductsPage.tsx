@@ -17,6 +17,7 @@ import { openModal } from '../store/slices/addProductModalSlice';
 import ProductList from '../components/ProductList';
 import SearchBar from '../components/SearchBar';
 import AddProductModal from '../components/AddProductModal';
+import type { Product } from '../types';
 
 const ProductsPage = () => {
   const { 
@@ -24,8 +25,10 @@ const ProductsPage = () => {
     isLoading, 
     error, 
     pagination, 
+    sorting,
     fetchProducts,
-    changePage
+    changePage,
+    changeSorting
   } = useProducts();
   const dispatch = useAppDispatch();
 
@@ -33,8 +36,17 @@ const ProductsPage = () => {
     fetchProducts();
   }, [fetchProducts]);
 
+  useEffect(() => {
+    fetchProducts();
+  }, [sorting, fetchProducts]);
+
   const handlePageChange = (newPage: number) => {
     changePage(newPage);
+  };
+
+  const handleSortingChange = (field: keyof Product) => {
+    const newDirection = sorting.field === field && sorting.direction === 'asc' ? 'desc' : 'asc';
+    changeSorting(field, newDirection);
   };
 
   const handleOpenAddModal = () => {
@@ -113,6 +125,8 @@ const ProductsPage = () => {
           pagination={pagination}
           onPageChange={handlePageChange}
           isLoading={isLoading}
+          sorting={sorting}
+          onSortingChange={handleSortingChange}
         />
         
         <AddProductModal />

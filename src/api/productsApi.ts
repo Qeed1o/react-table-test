@@ -40,7 +40,19 @@ class ProductsApi {
     if (params.skip) searchParams.append('skip', params.skip.toString());
     if (params.select) searchParams.append('select', params.select);
     if (params.search) searchParams.append('q', params.search);
-    if (params.sortBy) searchParams.append('sortBy', params.sortBy);
+    
+    // Маппинг полей сортировки для API
+    const sortMapping: Record<string, string> = {
+      'name': 'title',
+      'vendor': 'brand',
+      'sku': 'sku',
+      'rating': 'rating',
+      'price': 'price'
+    };
+    
+    if (params.sortBy && sortMapping[params.sortBy]) {
+      searchParams.append('sortBy', sortMapping[params.sortBy]);
+    }
     if (params.order) searchParams.append('order', params.order);
 
     const url = `${this.baseUrl}/products${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
