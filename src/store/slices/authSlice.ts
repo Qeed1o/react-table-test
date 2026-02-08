@@ -1,28 +1,59 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, User, LoginCredentials } from '../../types';
 
-// Mock API call
-const mockLogin = async (credentials: LoginCredentials): Promise<User> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (credentials.login === 'admin' && credentials.password === 'password') {
-        resolve({
-          id: '1',
-          login: credentials.login,
-          token: 'mock-jwt-token',
-        });
-      } else {
-        reject(new Error('Неверный логин или пароль'));
-      }
-    }, 1000);
+interface LoginRequest {
+  username: string;
+  password: string;
+  expiresInMins?: number;
+}
+
+interface AuthResponse {
+  id: string;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  gender: string;
+  image: string;
+  token: string;
+  refreshToken: string;
+}
+
+// Real API call
+const loginApi = async (credentials: LoginCredentials): Promise<User> => {
+  const loginData: LoginRequest = {
+    username: credentials.login,
+    password: credentials.password,
+    expiresInMins: 30,
+  };
+
+  const response = await fetch('https://dummyjson.com/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(loginData),
   });
+
+  if (!response.ok) {
+    throw new Error('Неверный логин или пароль');
+  }
+
+  const data: AuthResponse = await response.json();
+
+  // Преобразование ответа API в наш формат User
+  return {
+    id: data.id.toString(),
+    login: data.username,
+    token: data.token,
+  };
 };
 
 export const loginAsync = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
-      const user = await mockLogin(credentials);
+      const user = await loginApi(credentials);
       
       // Сохранение токена в зависимости от чекбокса "Запомнить меня"
       if (credentials.rememberMe) {
@@ -53,17 +84,27 @@ export const checkAuthAsync = createAsyncThunk(
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       
       if (token) {
-        // Mock проверка токена
-        if (token === 'mock-jwt-token') {
+        // Проверка токена через API
+        const response = await fetch('https://dummyjson.com/auth/me', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Преобразование ответа API в наш формат User
           return {
-            id: '1',
-            login: 'admin',
+            id: data.id.toString(),
+            login: data.username,
             token,
           };
         }
       }
       
-      return rejectWithValue('Токен не найден');
+      return rejectWithValue('Токен не найден или недействителен');
     } catch {
       return rejectWithValue('Ошибка проверки авторизации');
     }

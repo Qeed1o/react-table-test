@@ -21,13 +21,15 @@ import {
   VolumeUp,
 } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
-import { loginAsync, clearError } from '../store/slices/authSlice';
+import { useAuth } from '../hooks/useAuth';
+import { clearError } from '../store/slices/authSlice';
 import { showToast } from '../store/slices/toastSlice';
 import type { LoginCredentials } from '../types';
 
 const LoginPage = () => {
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { loginWithDispatch } = useAuth();
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
     login: '',
@@ -80,7 +82,7 @@ const LoginPage = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      dispatch(loginAsync(credentials));
+      loginWithDispatch(credentials);
     }
   };
 
