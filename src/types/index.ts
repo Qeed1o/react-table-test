@@ -21,6 +21,8 @@ export interface Product {
   sku: string;
   rating: number;
   description?: string;
+  image?: string;
+  category?: string;
 }
 
 export interface ProductsState {

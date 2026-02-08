@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Box, TextField } from '@mui/material';
-import { useAppSelector, useAppDispatch } from '../hooks/redux';
-import { setSearch } from '../store/slices/productsSlice';
+import { Box, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
+import { useProducts } from '../hooks/useProducts';
 
 const SearchBar = () => {
-  const dispatch = useAppDispatch();
-  const search = useAppSelector((state) => state.products.search);
+  const { search, changeSearch } = useProducts();
   const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (localSearch !== search) {
-        dispatch(setSearch(localSearch));
+        changeSearch(localSearch);
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [localSearch, search, dispatch]);
+  }, [localSearch, search, changeSearch]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
@@ -26,11 +25,32 @@ const SearchBar = () => {
     <Box mb={3}>
       <TextField
         fullWidth
-        label="Поиск товаров"
         variant="outlined"
         value={localSearch}
         onChange={handleChange}
-        placeholder="Введите название, артикул или вендор..."
+        placeholder="Поиск по названию, артикулу или вендору"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ color: '#9E9E9E' }} />
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#FAFAFA',
+            borderRadius: 2,
+            '& fieldset': {
+              borderColor: '#E0E0E0',
+            },
+            '&:hover fieldset': {
+              borderColor: '#BDBDBD',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: '#1976D2',
+            },
+          },
+        }}
       />
     </Box>
   );

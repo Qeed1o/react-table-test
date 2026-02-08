@@ -13,6 +13,8 @@ const mockFetchProducts = async (page: number, limit: number, search: string): P
         sku: `SKU-${String(i + 1).padStart(4, '0')}`,
         rating: Math.floor(Math.random() * 5) + 1,
         description: `Описание товара ${i + 1}`,
+        image: `https://picsum.photos/seed/product${i + 1}/48/48.jpg`,
+        category: `Категория ${(i % 8) + 1}`,
       }));
 
       const filteredProducts = search 

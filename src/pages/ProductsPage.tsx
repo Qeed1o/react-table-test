@@ -3,36 +3,32 @@ import {
   Box,
   Container,
   Typography,
-  Button,
   CircularProgress,
 } from '@mui/material';
-import { useAppSelector, useAppDispatch } from '../hooks/redux';
-import { fetchProductsAsync, setPage } from '../store/slices/productsSlice';
+import { useAppDispatch } from '../hooks/redux';
+import { useProducts } from '../hooks/useProducts';
 import { openModal } from '../store/slices/addProductModalSlice';
 import ProductList from '../components/ProductList';
 import SearchBar from '../components/SearchBar';
 import AddProductModal from '../components/AddProductModal';
 
 const ProductsPage = () => {
-  const dispatch = useAppDispatch();
   const { 
     products, 
     isLoading, 
     error, 
     pagination, 
-    search 
-  } = useAppSelector((state) => state.products);
+    fetchProducts,
+    changePage
+  } = useProducts();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchProductsAsync({
-      page: pagination.page,
-      limit: pagination.limit,
-      search,
-    }));
-  }, [dispatch, pagination.page, pagination.limit, search]);
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handlePageChange = (newPage: number) => {
-    dispatch(setPage(newPage));
+    changePage(newPage);
   };
 
   const handleOpenAddModal = () => {
@@ -56,13 +52,6 @@ const ProductsPage = () => {
           <Typography variant="h4" component="h1">
             Список товаров
           </Typography>
-          <Button
-            variant="contained"
-            onClick={handleOpenAddModal}
-            size="large"
-          >
-            Добавить товар
-          </Button>
         </Box>
 
         <SearchBar />
@@ -80,6 +69,7 @@ const ProductsPage = () => {
           pagination={pagination}
           onPageChange={handlePageChange}
           isLoading={isLoading}
+          onAddProduct={handleOpenAddModal}
         />
         
         <AddProductModal />

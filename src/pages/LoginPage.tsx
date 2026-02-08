@@ -179,6 +179,7 @@ const LoginPage = () => {
               fullWidth
               id="login"
               placeholder="Логин"
+              tabIndex={0}
               name="login"
               autoComplete="username"
               value={credentials.login}
@@ -214,6 +215,7 @@ const LoginPage = () => {
             <TextField
               fullWidth
               name="password"
+              tabIndex={1}
               placeholder="Пароль"
               type={showPassword ? 'text' : 'password'}
               id="password"
@@ -267,6 +269,7 @@ const LoginPage = () => {
               type="submit"
               fullWidth
               variant="contained"
+              tabIndex={2}
               sx={{
                 mb: 2,
                 py: 1.5,
