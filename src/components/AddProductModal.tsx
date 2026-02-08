@@ -8,6 +8,7 @@ import {
   Button,
   Box,
   CircularProgress,
+  Fade,
 } from '@mui/material';
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { 
@@ -136,7 +137,23 @@ const AddProductModal = () => {
   };
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog 
+      open={isOpen} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      TransitionComponent={Fade}
+      transitionDuration={{
+        enter: 300,
+        exit: 200,
+      }}
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          animation: 'slideIn 0.3s ease-out',
+        },
+      }}
+    >
       <DialogTitle>Добавить новый товар</DialogTitle>
       
       <form onSubmit={handleSubmit}>

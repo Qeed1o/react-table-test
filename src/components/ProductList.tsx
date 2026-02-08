@@ -2,10 +2,8 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   CircularProgress,
   Box,
   Typography,
@@ -20,7 +18,7 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type { Product } from '../types';
 
 interface ProductListProps {
@@ -34,7 +32,7 @@ interface ProductListProps {
   isLoading: boolean;
 }
 
-const ProductList = ({ 
+const ProductList = memo(({ 
   products, 
   pagination, 
   onPageChange, 
@@ -248,6 +246,6 @@ const ProductList = ({
         </Box>
     </Box>
   );
-};
+});
 
 export default ProductList;
