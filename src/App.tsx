@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -27,8 +27,8 @@ function AppContent() {
   const { checkAuth } = useAuth();
 
   useEffect(() => {
-    checkAuth()
-  }, [checkAuth]);
+    checkAuth();
+  }, []);
 
   if (isLoading) {
     return <LoadingPage />;
