@@ -60,13 +60,13 @@ const ProductsPage = () => {
       <Box sx={{ py: 4 }}>
         {/* Header with title and search */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 600, flex: 1 }}>
             Товары
           </Typography>
           <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
             <SearchBar />
           </Box>
-          <Box sx={{ width: 300 }} /> {/* Placeholder for balance */}
+          <Box sx={{ flex: 1 }} /> {/* Placeholder for balance */}
         </Box>
 
         {/* Section header with action buttons */}
