@@ -54,10 +54,10 @@ function App() {
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <AppContent />
-          <Toast />
-        </Router>
+          <Router>
+            <AppContent />
+            <Toast />
+          </Router>
       </ThemeProvider>
     </Provider>
   );

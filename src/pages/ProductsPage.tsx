@@ -80,7 +80,8 @@ const ProductsPage = () => {
               disabled={isLoading}
               sx={{ 
                 border: '1px solid #e0e0e0',
-                '&:hover': { backgroundColor: '#f5f5f5' }
+                '&:hover': { backgroundColor: '#f5f5f5' },
+                borderRadius: '8px'
               }}
             >
               <RefreshIcon />

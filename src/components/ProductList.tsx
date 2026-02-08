@@ -52,13 +52,6 @@ const ProductList = ({
 
   return (
     <Box>
-      <TableContainer 
-        component={Paper} 
-        sx={{ 
-          borderRadius: 2,
-          boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)'
-        }}
-      >
         <Table>
           <TableHead>
             <TableRow>
@@ -191,7 +184,6 @@ const ProductList = ({
             )}
           </TableBody>
         </Table>
-      </TableContainer>
       
         <Box 
           display="flex" 
