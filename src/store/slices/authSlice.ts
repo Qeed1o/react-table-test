@@ -15,7 +15,7 @@ interface AuthResponse {
   lastName: string;
   gender: string;
   image: string;
-  token: string;
+  accessToken: string;
   refreshToken: string;
 }
 
@@ -43,16 +43,16 @@ const loginApi = async (credentials: LoginCredentials): Promise<User> => {
 
   // Сохранение токена в зависимости от чекбокса "Запомнить меня"
   if (credentials.rememberMe) {
-    localStorage.setItem('token', data.token);
+    localStorage.setItem('token', data.accessToken);
   } else {
-    sessionStorage.setItem('token', data.token);
+    sessionStorage.setItem('token', data.accessToken);
   }
 
   // Преобразование ответа API в наш формат User
   return {
     id: data.id.toString(),
     login: data.username,
-    token: data.token,
+    accessToken: data.accessToken,
   };
 };
 

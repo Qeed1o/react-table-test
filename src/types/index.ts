@@ -3,7 +3,7 @@
 export interface User {
   id: string;
   login: string;
-  token: string;
+  accessToken: string;
 }
 
 export interface AuthState {
