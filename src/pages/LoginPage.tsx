@@ -19,12 +19,12 @@ import {
   Visibility,
   VisibilityOff,
   Clear,
-  VolumeUp,
 } from '@mui/icons-material';
 import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { useAuth } from '../hooks/useAuth';
 import { clearError } from '../store/slices/authSlice';
 import { showToast } from '../store/slices/toastSlice';
+import CustomIcon from '../components/CustomIcon';
 import type { LoginCredentials } from '../types';
 
 const LoginPage = () => {
@@ -130,23 +130,25 @@ const LoginPage = () => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#fafafa',
         margin: 0,
         padding: 2,
       }}
     >
       <Paper
-        elevation={2}
+        elevation={0}
         sx={{
           padding: 4,
           width: '100%',
           maxWidth: 515,
           borderRadius: 3,
+          border: '1px solid #e0e0e0',
+          backgroundColor: '#ffffff',
         }}
       >
           {/* Icon */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <VolumeUp sx={{ fontSize: 48, color: '#1976d2' }} />
+            <CustomIcon color="#1976d2" />
           </Box>
 
           {/* Title */}
@@ -187,7 +189,22 @@ const LoginPage = () => {
               error={!!fieldErrors.login}
               helperText={fieldErrors.login}
               disabled={isLoading}
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#fafafa',
+                  borderRadius: 2,
+                  '& fieldset': {
+                    borderColor: '#e0e0e0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d0d0d0',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#1976d2',
+                  },
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -225,7 +242,22 @@ const LoginPage = () => {
               error={!!fieldErrors.password}
               helperText={fieldErrors.password}
               disabled={isLoading}
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 2,
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#fafafa',
+                  borderRadius: 2,
+                  '& fieldset': {
+                    borderColor: '#e0e0e0',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#d0d0d0',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#1976d2',
+                  },
+                },
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
