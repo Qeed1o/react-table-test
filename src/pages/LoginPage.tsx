@@ -166,6 +166,9 @@ const LoginPage = () => {
 
           <Box component="form" onSubmit={handleSubmit}>
             {/* Login Field */}
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+              Логин
+            </Typography>
             <TextField
               fullWidth
               id="login"
@@ -199,6 +202,9 @@ const LoginPage = () => {
             />
 
             {/* Password Field */}
+            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+              Пароль
+            </Typography>
             <TextField
               fullWidth
               name="password"
