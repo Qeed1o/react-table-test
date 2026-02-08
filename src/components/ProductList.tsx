@@ -133,7 +133,7 @@ const ProductList = ({
                 <TableCell>{product.vendor}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1} minWidth="max-content">
+                  <Box display="flex" alignItems="center" minWidth="max-content">
                     <Typography 
                       color={getRatingColor(product.rating)}
                       fontWeight={500}
@@ -143,8 +143,7 @@ const ProductList = ({
                     <Typography 
                       color="text.secondary"
                       fontWeight={500}
-                    >
-                      /5
+                    >/5
                     </Typography>
                   </Box>
                 </TableCell>
