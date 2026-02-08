@@ -53,11 +53,12 @@ function AppContent() {
 }
 
 function App() {
+  const isProduction = process.env.NODE_ENV === 'production';
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-          <Router>
+          <Router basename={isProduction ? "/react-table-test" : ""}>
             <AppContent />
             <Toast />
           </Router>
