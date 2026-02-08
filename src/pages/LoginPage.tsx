@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -27,9 +28,21 @@ import { showToast } from '../store/slices/toastSlice';
 import type { LoginCredentials } from '../types';
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
   const { login } = useAuth();
+
+  // Если пользователь уже авторизован, перенаправляем на страницу товаров
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(showToast({
+        message: 'Вход выполнен успешно',
+        type: 'success',
+      }));
+      navigate('/products');
+    }
+  }, [isAuthenticated, navigate, dispatch]);
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
     login: '',
@@ -43,15 +56,6 @@ const LoginPage = () => {
     login?: string;
     password?: string;
   }>({});
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(showToast({
-        message: 'Вход выполнен успешно',
-        type: 'success',
-      }));
-    }
-  }, [isAuthenticated, dispatch]);
 
   useEffect(() => {
     if (error) {

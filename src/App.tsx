@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { checkAuthAsync } from './store/slices/authSlice';
 import LoginPage from './pages/LoginPage';
 import ProductsPage from './pages/ProductsPage';
+import LoadingPage from './components/LoadingPage';
 import Toast from './components/Toast';
 
 const theme = createTheme({
@@ -30,7 +31,7 @@ function AppContent() {
   }, [dispatch]);
 
   if (isLoading) {
-    return <div>Загрузка...</div>;
+    return <LoadingPage />;
   }
 
   return (
