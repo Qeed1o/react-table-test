@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Button,
   Box,
   CircularProgress,
@@ -20,59 +19,95 @@ import {
 import { addProduct } from '../store/slices/productsSlice';
 import { showToast } from '../store/slices/toastSlice';
 import type { AddProductForm, Product } from '../types';
+import FormTextField from './FormTextField';
+import ErrorMessage from './ErrorMessage';
+
+// Константы для валидации
+const VALIDATION_RULES = {
+  REQUIRED_FIELD: 'Поле обязательно для заполнения',
+  INVALID_PRICE: 'Цена должна быть положительным числом',
+  MIN_RATING: 1,
+  MAX_RATING: 5,
+} as const;
+
+// Начальные значения формы
+const INITIAL_FORM_DATA: AddProductForm = {
+  name: '',
+  price: '',
+  vendor: '',
+  sku: '',
+};
+
+// Стили для диалога
+const dialogStyles = {
+  borderRadius: 3,
+  animation: 'slideIn 0.3s ease-out',
+};
+
+const transitionDuration = {
+  enter: 300,
+  exit: 200,
+};
 
 const AddProductModal = () => {
   const dispatch = useAppDispatch();
   const { isOpen, isSubmitting, error } = useAppSelector((state) => state.addProductModal);
 
-  const [formData, setFormData] = useState<AddProductForm>({
-    name: '',
-    price: '',
-    vendor: '',
-    sku: '',
-  });
-
+  const [formData, setFormData] = useState<AddProductForm>(INITIAL_FORM_DATA);
   const [fieldErrors, setFieldErrors] = useState<Partial<AddProductForm>>({});
+
+  // Сброс формы при закрытии модального окна
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
+    setFieldErrors({});
+    dispatch(clearError());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!isOpen) {
-      // Сброс формы при закрытии
-      setFormData({
-        name: '',
-        price: '',
-        vendor: '',
-        sku: '',
-      });
-      setFieldErrors({});
-      dispatch(clearError());
+      resetForm();
     }
-  }, [isOpen, dispatch]);
+  }, [isOpen, resetForm]);
 
-  const validateForm = (): boolean => {
+  // Валидация формы
+  const validateForm = useCallback((): boolean => {
     const errors: Partial<AddProductForm> = {};
 
     if (!formData.name.trim()) {
-      errors.name = 'Наименование обязательно';
+      errors.name = VALIDATION_RULES.REQUIRED_FIELD;
     }
 
     if (!formData.price.trim()) {
-      errors.price = 'Цена обязательна';
+      errors.price = VALIDATION_RULES.REQUIRED_FIELD;
     } else if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-      errors.price = 'Цена должна быть положительным числом';
+      errors.price = VALIDATION_RULES.INVALID_PRICE;
     }
 
     if (!formData.vendor.trim()) {
-      errors.vendor = 'Вендор обязателен';
+      errors.vendor = VALIDATION_RULES.REQUIRED_FIELD;
     }
 
     if (!formData.sku.trim()) {
-      errors.sku = 'Артикул обязателен';
+      errors.sku = VALIDATION_RULES.REQUIRED_FIELD;
     }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [formData]);
 
+  // Создание нового товара
+  const createNewProduct = useCallback((): Product => {
+    return {
+      id: `product-${Date.now()}`,
+      name: formData.name.trim(),
+      price: Number(formData.price),
+      vendor: formData.vendor.trim(),
+      sku: formData.sku.trim(),
+      rating: Math.floor(Math.random() * VALIDATION_RULES.MAX_RATING) + VALIDATION_RULES.MIN_RATING,
+    };
+  }, [formData]);
+
+  // Обработчик отправки формы
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -84,26 +119,14 @@ const AddProductModal = () => {
       dispatch(setSubmitting(true));
       dispatch(clearError());
 
-      // Создание нового товара
-      const newProduct: Product = {
-        id: `product-${Date.now()}`,
-        name: formData.name.trim(),
-        price: Number(formData.price),
-        vendor: formData.vendor.trim(),
-        sku: formData.sku.trim(),
-        rating: Math.floor(Math.random() * 5) + 1, // Случайный рейтинг 1-5
-      };
-
-      // Добавление товара в store
+      const newProduct = createNewProduct();
       dispatch(addProduct(newProduct));
-
-      // Показ уведомления об успехе
+      
       dispatch(showToast({
         message: 'Товар успешно добавлен',
         type: 'success',
       }));
 
-      // Закрытие модального окна
       dispatch(closeModal());
     } catch {
       dispatch(setError('Ошибка при добавлении товара'));
@@ -112,13 +135,15 @@ const AddProductModal = () => {
     }
   };
 
-  const handleClose = () => {
+  // Обработчик закрытия модального окна
+  const handleClose = useCallback(() => {
     if (!isSubmitting) {
       dispatch(closeModal());
     }
-  };
+  }, [isSubmitting, dispatch]);
 
-  const handleInputChange = (field: keyof AddProductForm) => (
+  // Обработчик изменения полей формы
+  const handleInputChange = useCallback((field: keyof AddProductForm) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
@@ -134,7 +159,7 @@ const AddProductModal = () => {
         [field]: undefined,
       }));
     }
-  };
+  }, [fieldErrors]);
 
   return (
     <Dialog 
@@ -143,15 +168,9 @@ const AddProductModal = () => {
       maxWidth="sm" 
       fullWidth
       TransitionComponent={Fade}
-      transitionDuration={{
-        enter: 300,
-        exit: 200,
-      }}
+      transitionDuration={transitionDuration}
       PaperProps={{
-        sx: {
-          borderRadius: 3,
-          animation: 'slideIn 0.3s ease-out',
-        },
+        sx: dialogStyles,
       }}
     >
       <DialogTitle>Добавить новый товар</DialogTitle>
@@ -159,52 +178,42 @@ const AddProductModal = () => {
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <Box display="flex" flexDirection="column" gap={2}>
-            <TextField
+            <FormTextField
               label="Наименование"
               value={formData.name}
               onChange={handleInputChange('name')}
-              error={!!fieldErrors.name}
-              helperText={fieldErrors.name}
+              error={fieldErrors.name}
               disabled={isSubmitting}
-              fullWidth
             />
 
-            <TextField
+            <FormTextField
               label="Цена"
               value={formData.price}
               onChange={handleInputChange('price')}
-              error={!!fieldErrors.price}
-              helperText={fieldErrors.price}
+              error={fieldErrors.price}
               disabled={isSubmitting}
-              fullWidth
               type="number"
               inputProps={{ min: 0, step: 0.01 }}
             />
 
-            <TextField
+            <FormTextField
               label="Вендор"
               value={formData.vendor}
               onChange={handleInputChange('vendor')}
-              error={!!fieldErrors.vendor}
-              helperText={fieldErrors.vendor}
+              error={fieldErrors.vendor}
               disabled={isSubmitting}
-              fullWidth
             />
 
-            <TextField
+            <FormTextField
               label="Артикул"
               value={formData.sku}
               onChange={handleInputChange('sku')}
-              error={!!fieldErrors.sku}
-              helperText={fieldErrors.sku}
+              error={fieldErrors.sku}
               disabled={isSubmitting}
-              fullWidth
             />
 
             {error && (
-              <Box color="error.main" fontSize="0.875rem">
-                {error}
-              </Box>
+              <ErrorMessage message={error} />
             )}
           </Box>
         </DialogContent>

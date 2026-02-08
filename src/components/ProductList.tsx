@@ -9,8 +9,6 @@ import {
   Typography,
   Checkbox,
   IconButton,
-  Avatar,
-  Button,
 } from '@mui/material';
 import {
   NavigateBefore as NavigateBeforeIcon,
@@ -18,8 +16,12 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
-import { useState, memo } from 'react';
+import { useState, memo, useMemo } from 'react';
 import type { Product } from '../types';
+import ProductInfo from './ProductInfo';
+import RatingDisplay from './RatingDisplay';
+import PriceDisplay from './PriceDisplay';
+import PaginationButton from './PaginationButton';
 
 interface ProductListProps {
   products: Product[];
@@ -32,21 +34,79 @@ interface ProductListProps {
   isLoading: boolean;
 }
 
+// Стили для таблицы
+const tableHeaderStyles = {
+  fontWeight: 600,
+  color: '#757575' as const,
+};
+
+const selectedRowStyles = {
+  borderLeft: '3px solid #1976D2',
+};
+
+const hoverRowStyles = {
+  backgroundColor: '#FAFAFA',
+};
+
+const paginationButtonStyles = {
+  border: '1px solid #e0e0e0',
+  '&:hover': { backgroundColor: '#f5f5f5' },
+  '&:disabled': { backgroundColor: '#f5f5f5' },
+};
+
 const ProductList = memo(({ 
   products, 
   pagination, 
   onPageChange, 
   isLoading
 }: ProductListProps) => {
-  
-  const getRatingColor = (rating: number) => {
-    return rating < 3 ? '#E53935' : '#424242';
-  };
-
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
-  const startIndex = (pagination.page - 1) * pagination.limit + 1;
-  const endIndex = Math.min(pagination.page * pagination.limit, pagination.total);
+  // Мемоизированные вычисления
+  const paginationInfo = useMemo(() => {
+    const startIndex = (pagination.page - 1) * pagination.limit + 1;
+    const endIndex = Math.min(pagination.page * pagination.limit, pagination.total);
+    const totalPages = Math.ceil(pagination.total / pagination.limit);
+    
+    return { startIndex, endIndex, totalPages };
+  }, [pagination.page, pagination.limit, pagination.total]);
+
+  const pageNumbers = useMemo(() => {
+    return Array.from(
+      { length: Math.min(5, paginationInfo.totalPages) }, 
+      (_, i) => i + 1
+    );
+  }, [paginationInfo.totalPages]);
+
+  // Обработчики событий
+  const handleSelectAll = (checked: boolean) => {
+    setSelectedRows(checked ? new Set(products.map(p => p.id)) : new Set());
+  };
+
+  const handleSelectRow = (productId: string, checked: boolean) => {
+    setSelectedRows(prev => {
+      const newSelected = new Set(prev);
+      if (checked) {
+        newSelected.add(productId);
+      } else {
+        newSelected.delete(productId);
+      }
+      return newSelected;
+    });
+  };
+
+  const handlePrevPage = () => {
+    onPageChange(Math.max(1, pagination.page - 1));
+  };
+
+  const handleNextPage = () => {
+    onPageChange(Math.min(paginationInfo.totalPages, pagination.page + 1));
+  };
+
+  // Вспомогательные функции больше не нужны здесь, так как они вынесены в компоненты
+
+  const isAllSelected = products.length > 0 && selectedRows.size === products.length;
+  const isIndeterminate = selectedRows.size > 0 && selectedRows.size < products.length;
 
   return (
     <Box>
@@ -56,22 +116,16 @@ const ProductList = memo(({
               <TableCell padding="checkbox">
                 <Checkbox 
                   size="small"
-                  checked={selectedRows.size === products.length && products.length > 0}
-                  indeterminate={selectedRows.size > 0 && selectedRows.size < products.length}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedRows(new Set(products.map(p => p.id)));
-                    } else {
-                      setSelectedRows(new Set());
-                    }
-                  }}
+                  checked={isAllSelected}
+                  indeterminate={isIndeterminate}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
                 />
               </TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Наименование</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Вендор</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Артикул</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Оценка</TableCell>
-              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Цена, Р</TableCell>
+              <TableCell sx={tableHeaderStyles}>Наименование</TableCell>
+              <TableCell sx={tableHeaderStyles}>Вендор</TableCell>
+              <TableCell sx={tableHeaderStyles}>Артикул</TableCell>
+              <TableCell sx={tableHeaderStyles}>Оценка</TableCell>
+              <TableCell sx={tableHeaderStyles}>Цена, &#x20BD;</TableCell>
               <TableCell /> {/* For action buttons */}
             </TableRow>
           </TableHead>
@@ -81,72 +135,29 @@ const ProductList = memo(({
                 key={product.id} 
                 hover
                 sx={{
-                  borderLeft: selectedRows.has(product.id) ? '3px solid #1976D2' : '3px solid transparent',
-                  '&:hover': {
-                    backgroundColor: '#FAFAFA'
-                  }
+                  borderLeft: selectedRows.has(product.id) 
+                    ? selectedRowStyles.borderLeft 
+                    : '3px solid transparent',
+                  '&:hover': hoverRowStyles,
                 }}
               >
                 <TableCell padding="checkbox">
                   <Checkbox 
                     size="small"
                     checked={selectedRows.has(product.id)}
-                    onChange={(e) => {
-                      const newSelected = new Set(selectedRows);
-                      if (e.target.checked) {
-                        newSelected.add(product.id);
-                      } else {
-                        newSelected.delete(product.id);
-                      }
-                      setSelectedRows(newSelected);
-                    }}
+                    onChange={(e) => handleSelectRow(product.id, e.target.checked)}
                   />
                 </TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={2}>
-                    <Avatar 
-                      src={product.image} 
-                      variant="rounded"
-                      sx={{ width: 48, height: 48, bgcolor: '#F5F5F5' }}
-                    >
-                      <Box sx={{ color: '#9E9E9E', fontSize: 12 }}>IMG</Box>
-                    </Avatar>
-                    <Box>
-                      <Typography variant="body2" fontWeight={600}>
-                        {product.name}
-                      </Typography>
-                      <Typography variant="caption" color="#757575">
-                        {product.category}
-                      </Typography>
-                    </Box>
-                  </Box>
+                  <ProductInfo product={product} />
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>{product.vendor}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" minWidth="max-content">
-                    <Typography 
-                      color={getRatingColor(product.rating)}
-                      fontWeight={500}
-                    >
-                      {product.rating.toFixed(1)}
-                    </Typography>
-                    <Typography 
-                      color="text.secondary"
-                      fontWeight={500}
-                    >/5
-                    </Typography>
-                  </Box>
+                  <RatingDisplay rating={product.rating} />
                 </TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="baseline">
-                    <Typography>
-                      {Math.floor(product.price).toLocaleString()},
-                    </Typography>
-                    <Typography variant="body2" color="#757575">
-                      {(product.price % 1).toFixed(2).substring(2)}
-                    </Typography>
-                  </Box>
+                  <PriceDisplay price={product.price} />
                 </TableCell>
                 <TableCell align="right">
                   <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
@@ -191,54 +202,33 @@ const ProductList = memo(({
           px={1}
         >
           <Typography variant="body2" color="text.secondary">
-            Показано {startIndex}-{endIndex} из {pagination.total}
+            Показано {paginationInfo.startIndex}-{paginationInfo.endIndex} из {pagination.total}
           </Typography>
           
           <Box display="flex" alignItems="center" gap={1}>
             <IconButton 
               size="small"
-              onClick={() => onPageChange(Math.max(1, pagination.page - 1))}
+              onClick={handlePrevPage}
               disabled={pagination.page === 1}
-              sx={{ 
-                border: '1px solid #e0e0e0',
-                '&:hover': { backgroundColor: '#f5f5f5' },
-                '&:disabled': { backgroundColor: '#f5f5f5' }
-              }}
+              sx={paginationButtonStyles}
             >
               <NavigateBeforeIcon />
             </IconButton>
             
-            {Array.from({ length: Math.min(5, Math.ceil(pagination.total / pagination.limit)) }, (_, i) => i + 1).map((pageNum) => (
-              <Button
+            {pageNumbers.map((pageNum) => (
+              <PaginationButton
                 key={pageNum}
-                variant={pageNum === pagination.page ? "contained" : "outlined"}
-                size="small"
-                onClick={() => onPageChange(pageNum)}
-                sx={{ 
-                  minWidth: 32, 
-                  height: 32, 
-                  p: 0,
-                  backgroundColor: pageNum === pagination.page ? '#1976D2' : 'transparent',
-                  borderColor: '#e0e0e0',
-                  color: pageNum === pagination.page ? 'white' : '#424242',
-                  '&:hover': {
-                    backgroundColor: pageNum === pagination.page ? '#1565C0' : '#f5f5f5'
-                  }
-                }}
-              >
-                {pageNum}
-              </Button>
+                pageNum={pageNum}
+                currentPage={pagination.page}
+                onPageChange={onPageChange}
+              />
             ))}
             
             <IconButton 
               size="small"
-              onClick={() => onPageChange(Math.min(Math.ceil(pagination.total / pagination.limit), pagination.page + 1))}
-              disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
-              sx={{ 
-                border: '1px solid #e0e0e0',
-                '&:hover': { backgroundColor: '#f5f5f5' },
-                '&:disabled': { backgroundColor: '#f5f5f5' }
-              }}
+              onClick={handleNextPage}
+              disabled={pagination.page >= paginationInfo.totalPages}
+              sx={paginationButtonStyles}
             >
               <NavigateNextIcon />
             </IconButton>
