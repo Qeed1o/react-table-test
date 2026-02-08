@@ -19,7 +19,7 @@ import {
 import { addProduct } from '../store/slices/productsSlice';
 import { showToast } from '../store/slices/toastSlice';
 import type { AddProductForm, Product } from '../types';
-import { VALIDATION_RULES, validateAddProductForm, hasValidationErrors } from '../utils/validation';
+import { VALIDATION_RULES, validateAddProductForm, hasValidationErrors, type AddProductFormErrors } from '../utils/validation';
 import FormTextField from './FormTextField';
 import ErrorMessage from './ErrorMessage';
 
@@ -48,7 +48,7 @@ const AddProductModal = () => {
   const { isOpen, isSubmitting, error } = useAppSelector((state) => state.addProductModal);
 
   const [formData, setFormData] = useState<AddProductForm>(INITIAL_FORM_DATA);
-  const [fieldErrors, setFieldErrors] = useState<Partial<AddProductForm>>({});
+  const [fieldErrors, setFieldErrors] = useState<AddProductFormErrors>({});
 
   // Сброс формы при закрытии модального окна
   const resetForm = useCallback(() => {

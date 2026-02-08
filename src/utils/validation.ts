@@ -1,4 +1,4 @@
-import type { AddProductForm } from '../types';
+import type { AddProductForm, LoginCredentials } from '../types';
 
 // Константы для валидации
 export const VALIDATION_RULES = {
@@ -8,11 +8,17 @@ export const VALIDATION_RULES = {
   MAX_RATING: 5,
 } as const;
 
-export type ValidationErrors = Partial<AddProductForm>;
+// Типы ошибок валидации
+export type AddProductFormErrors = Partial<AddProductForm>;
+export type LoginFormErrors = {
+  login?: string;
+  password?: string;
+};
+export type ValidationErrors = AddProductFormErrors | LoginFormErrors;
 
 // Функция валидации формы добавления товара
-export const validateAddProductForm = (formData: AddProductForm): ValidationErrors => {
-  const errors: ValidationErrors = {};
+export const validateAddProductForm = (formData: AddProductForm): AddProductFormErrors => {
+  const errors: AddProductFormErrors = {};
 
   if (!formData.name.trim()) {
     errors.name = VALIDATION_RULES.REQUIRED_FIELD;
@@ -38,4 +44,19 @@ export const validateAddProductForm = (formData: AddProductForm): ValidationErro
 // Проверка, есть ли ошибки валидации
 export const hasValidationErrors = (errors: ValidationErrors): boolean => {
   return Object.keys(errors).length > 0;
+};
+
+// Функция валидации формы входа
+export const validateLoginForm = (credentials: LoginCredentials): LoginFormErrors => {
+  const errors: LoginFormErrors = {};
+
+  if (!credentials.login.trim()) {
+    errors.login = 'Логин обязателен';
+  }
+
+  if (!credentials.password.trim()) {
+    errors.password = 'Пароль обязателен';
+  }
+
+  return errors;
 };

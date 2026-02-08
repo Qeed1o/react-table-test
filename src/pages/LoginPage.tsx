@@ -24,6 +24,7 @@ import { useAppSelector, useAppDispatch } from '../hooks/redux';
 import { useAuth } from '../hooks/useAuth';
 import { clearError } from '../store/slices/authSlice';
 import { showToast } from '../store/slices/toastSlice';
+import { validateLoginForm, type LoginFormErrors } from '../utils/validation';
 import CustomIcon from '../components/CustomIcon';
 import type { LoginCredentials } from '../types';
 
@@ -52,10 +53,7 @@ const LoginPage = () => {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  const [fieldErrors, setFieldErrors] = useState<{
-    login?: string;
-    password?: string;
-  }>({});
+  const [fieldErrors, setFieldErrors] = useState<LoginFormErrors>({});
 
   useEffect(() => {
     if (error) {
@@ -68,16 +66,7 @@ const LoginPage = () => {
   }, [error, dispatch]);
 
   const validateForm = (): boolean => {
-    const errors: typeof fieldErrors = {};
-
-    if (!credentials.login.trim()) {
-      errors.login = 'Логин обязателен';
-    }
-
-    if (!credentials.password.trim()) {
-      errors.password = 'Пароль обязателен';
-    }
-
+    const errors = validateLoginForm(credentials);
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
