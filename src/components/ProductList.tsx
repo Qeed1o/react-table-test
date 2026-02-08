@@ -122,18 +122,18 @@ const ProductList = ({
                 <TableCell>{product.vendor}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                  <Typography 
-                    color={getRatingColor(product.rating)}
-                    fontWeight={500}
-                  >
-                    {product.rating} 
-                  </Typography>
-                  <Typography 
-                    fontWeight={500}
-                  >
-                    / 5
-                  </Typography>
+                  <Box display="flex" alignItems="center" gap={1} minWidth={'max-content'}>
+                    <Typography 
+                      color={getRatingColor(product.rating)}
+                      fontWeight={500}
+                    >
+                      {product.rating} 
+                    </Typography>
+                    <Typography 
+                      fontWeight={500}
+                    >
+                      / 5
+                    </Typography>
                   </Box>
                 </TableCell>
                 <TableCell>
