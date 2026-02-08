@@ -76,11 +76,11 @@ const ProductList = ({
                   }}
                 />
               </TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Наименование</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Вендор</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Артикул</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Оценка</TableCell>
-              <TableCell sx={{ fontWeight: 600 }}>Цена, Р</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Наименование</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Вендор</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Артикул</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Оценка</TableCell>
+              <TableCell sx={{ fontWeight: 600, color: '#757575' }}>Цена, Р</TableCell>
               <TableCell /> {/* For action buttons */}
             </TableRow>
           </TableHead>
@@ -121,16 +121,16 @@ const ProductList = ({
                       <Box sx={{ color: '#9E9E9E', fontSize: 12 }}>IMG</Box>
                     </Avatar>
                     <Box>
-                      <Typography variant="body2" fontWeight={500}>
+                      <Typography variant="body2" fontWeight={600}>
                         {product.name}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="#757575">
                         {product.category}
                       </Typography>
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell>{product.vendor}</TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{product.vendor}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center" minWidth="max-content">
@@ -148,9 +148,14 @@ const ProductList = ({
                   </Box>
                 </TableCell>
                 <TableCell>
-                  <Typography fontWeight={500}>
-                    {product.price.toLocaleString()}
-                  </Typography>
+                  <Box display="flex" alignItems="baseline">
+                    <Typography>
+                      {Math.floor(product.price).toLocaleString()},
+                    </Typography>
+                    <Typography variant="body2" color="#757575">
+                      {(product.price % 1).toFixed(2).substring(2)}
+                    </Typography>
+                  </Box>
                 </TableCell>
                 <TableCell align="right">
                   <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
