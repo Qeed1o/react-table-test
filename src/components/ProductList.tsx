@@ -16,8 +16,10 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
 } from '@mui/icons-material';
-import { useState, memo, useMemo } from 'react';
+import { useState, memo, useMemo, useCallback } from 'react';
 import type { Product } from '../types';
+import { useAppDispatch } from '../hooks/redux';
+import { openEditModal } from '../store/slices/addProductModalSlice';
 import ProductInfo from './ProductInfo';
 import RatingDisplay from './RatingDisplay';
 import PriceDisplay from './PriceDisplay';
@@ -61,6 +63,7 @@ const ProductList = memo(({
   isLoading
 }: ProductListProps) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const dispatch = useAppDispatch();
 
   // Мемоизированные вычисления
   const paginationInfo = useMemo(() => {
@@ -102,6 +105,10 @@ const ProductList = memo(({
   const handleNextPage = () => {
     onPageChange(Math.min(paginationInfo.totalPages, pagination.page + 1));
   };
+
+  const handleEditProduct = useCallback((productId: string) => {
+    dispatch(openEditModal(productId));
+  }, [dispatch]);
 
   // Вспомогательные функции больше не нужны здесь, так как они вынесены в компоненты
 
@@ -161,7 +168,11 @@ const ProductList = memo(({
                 </TableCell>
                 <TableCell align="right">
                   <Box display="flex" alignItems="center" justifyContent="flex-end" gap={1}>
-                    <IconButton size="small" sx={{ color: '#1976D2' }}>
+                    <IconButton 
+                      size="small" 
+                      sx={{ color: '#1976D2' }}
+                      onClick={() => handleEditProduct(product.id)}
+                    >
                       <AddIcon />
                     </IconButton>
                     <IconButton size="small">

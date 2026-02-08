@@ -5,6 +5,8 @@ const initialState: AddProductModalState = {
   isOpen: false,
   isSubmitting: false,
   error: null,
+  isEditMode: false,
+  editingProductId: null,
 };
 
 const addProductModalSlice = createSlice({
@@ -14,10 +16,20 @@ const addProductModalSlice = createSlice({
     openModal: (state) => {
       state.isOpen = true;
       state.error = null;
+      state.isEditMode = false;
+      state.editingProductId = null;
+    },
+    openEditModal: (state, action: PayloadAction<string>) => {
+      state.isOpen = true;
+      state.error = null;
+      state.isEditMode = true;
+      state.editingProductId = action.payload;
     },
     closeModal: (state) => {
       state.isOpen = false;
       state.error = null;
+      state.isEditMode = false;
+      state.editingProductId = null;
     },
     setSubmitting: (state, action: PayloadAction<boolean>) => {
       state.isSubmitting = action.payload;
@@ -31,5 +43,5 @@ const addProductModalSlice = createSlice({
   },
 });
 
-export const { openModal, closeModal, setSubmitting, setError, clearError } = addProductModalSlice.actions;
+export const { openModal, openEditModal, closeModal, setSubmitting, setError, clearError } = addProductModalSlice.actions;
 export default addProductModalSlice.reducer;

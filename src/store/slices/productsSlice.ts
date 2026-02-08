@@ -61,6 +61,12 @@ const productsSlice = createSlice({
       state.products.unshift(action.payload);
       state.pagination.total += 1;
     },
+    updateProduct: (state, action: PayloadAction<Product>) => {
+      const index = state.products.findIndex(p => p.id === action.payload.id);
+      if (index !== -1) {
+        state.products[index] = action.payload;
+      }
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -84,5 +90,5 @@ const productsSlice = createSlice({
   },
 });
 
-export const { setPage, setSorting, setSearch, setLoading, addProduct, clearError } = productsSlice.actions;
+export const { setPage, setSorting, setSearch, setLoading, addProduct, updateProduct, clearError } = productsSlice.actions;
 export default productsSlice.reducer;

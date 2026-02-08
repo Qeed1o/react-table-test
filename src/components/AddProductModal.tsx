@@ -16,7 +16,7 @@ import {
   setError, 
   clearError 
 } from '../store/slices/addProductModalSlice';
-import { addProduct } from '../store/slices/productsSlice';
+import { addProduct, updateProduct } from '../store/slices/productsSlice';
 import { showToast } from '../store/slices/toastSlice';
 import type { AddProductForm, Product } from '../types';
 import { VALIDATION_RULES, validateAddProductForm, hasValidationErrors, type AddProductFormErrors } from '../utils/validation';
@@ -45,7 +45,8 @@ const transitionDuration = {
 
 const AddProductModal = () => {
   const dispatch = useAppDispatch();
-  const { isOpen, isSubmitting, error } = useAppSelector((state) => state.addProductModal);
+  const { isOpen, isSubmitting, error, isEditMode, editingProductId } = useAppSelector((state) => state.addProductModal);
+  const { products } = useAppSelector((state) => state.products);
 
   const [formData, setFormData] = useState<AddProductForm>(INITIAL_FORM_DATA);
   const [fieldErrors, setFieldErrors] = useState<AddProductFormErrors>({});
@@ -57,11 +58,22 @@ const AddProductModal = () => {
     dispatch(clearError());
   }, [dispatch]);
 
+  // Заполнение формы данными продукта при открытии в режиме редактирования
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && isEditMode && editingProductId) {
+      const product = products.find(p => p.id === editingProductId);
+      if (product) {
+        setFormData({
+          name: product.name,
+          price: product.price.toString(),
+          vendor: product.vendor,
+          sku: product.sku,
+        });
+      }
+    } else if (!isOpen) {
       resetForm();
     }
-  }, [isOpen, resetForm]);
+  }, [isOpen, isEditMode, editingProductId, products, resetForm]);
 
   // Валидация формы
   const validateForm = useCallback((): boolean => {
@@ -70,17 +82,33 @@ const AddProductModal = () => {
     return !hasValidationErrors(errors);
   }, [formData]);
 
-  // Создание нового товара
-  const createNewProduct = useCallback((): Product => {
-    return {
-      id: `product-${Date.now()}`,
+  // Создание или обновление товара
+  const saveProduct = useCallback((): Product => {
+    const baseProduct = {
       name: formData.name.trim(),
       price: Number(formData.price),
       vendor: formData.vendor.trim(),
       sku: formData.sku.trim(),
+    };
+
+    if (isEditMode && editingProductId) {
+      // В режиме редактирования сохраняем существующие данные продукта
+      const existingProduct = products.find(p => p.id === editingProductId);
+      if (existingProduct) {
+        return {
+          ...existingProduct,
+          ...baseProduct,
+        };
+      }
+    }
+
+    // В режиме создания нового продукта
+    return {
+      id: isEditMode && editingProductId ? editingProductId : `product-${Date.now()}`,
+      ...baseProduct,
       rating: Math.floor(Math.random() * (VALIDATION_RULES.MAX_RATING - VALIDATION_RULES.MIN_RATING + 1)) + VALIDATION_RULES.MIN_RATING,
     };
-  }, [formData]);
+  }, [formData, isEditMode, editingProductId, products]);
 
   // Обработчик отправки формы
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,13 +122,21 @@ const AddProductModal = () => {
       dispatch(setSubmitting(true));
       dispatch(clearError());
 
-      const newProduct = createNewProduct();
-      dispatch(addProduct(newProduct));
+      const savedProduct = saveProduct();
       
-      dispatch(showToast({
-        message: 'Товар успешно добавлен',
-        type: 'success',
-      }));
+      if (isEditMode) {
+        dispatch(updateProduct(savedProduct));
+        dispatch(showToast({
+          message: 'Товар успешно обновлен',
+          type: 'success',
+        }));
+      } else {
+        dispatch(addProduct(savedProduct));
+        dispatch(showToast({
+          message: 'Товар успешно добавлен',
+          type: 'success',
+        }));
+      }
 
       dispatch(closeModal());
     } catch {
@@ -148,7 +184,7 @@ const AddProductModal = () => {
         sx: dialogStyles,
       }}
     >
-      <DialogTitle>Добавить новый товар</DialogTitle>
+      <DialogTitle>{isEditMode ? 'Редактировать товар' : 'Добавить новый товар'}</DialogTitle>
       
       <form onSubmit={handleSubmit}>
         <DialogContent>
@@ -202,7 +238,7 @@ const AddProductModal = () => {
             variant="contained" 
             disabled={isSubmitting}
           >
-            {isSubmitting ? <CircularProgress size={24} /> : 'Добавить'}
+            {isSubmitting ? <CircularProgress size={24} /> : (isEditMode ? 'Сохранить' : 'Добавить')}
           </Button>
         </DialogActions>
       </form>

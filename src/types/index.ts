@@ -46,6 +46,8 @@ export interface AddProductModalState {
   isOpen: boolean;
   isSubmitting: boolean;
   error: string | null;
+  isEditMode: boolean;
+  editingProductId: string | null;
 }
 
 export interface ToastState {
