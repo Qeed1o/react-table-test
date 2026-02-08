@@ -29,7 +29,7 @@ import type { LoginCredentials } from '../types';
 const LoginPage = () => {
   const dispatch = useAppDispatch();
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
-  const { loginWithDispatch } = useAuth();
+  const { login } = useAuth();
 
   const [credentials, setCredentials] = useState<LoginCredentials>({
     login: '',
@@ -82,7 +82,7 @@ const LoginPage = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      loginWithDispatch(credentials);
+      login(credentials);
     }
   };
 

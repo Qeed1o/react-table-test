@@ -41,6 +41,13 @@ const loginApi = async (credentials: LoginCredentials): Promise<User> => {
 
   const data: AuthResponse = await response.json();
 
+  // Сохранение токена в зависимости от чекбокса "Запомнить меня"
+  if (credentials.rememberMe) {
+    localStorage.setItem('token', data.token);
+  } else {
+    sessionStorage.setItem('token', data.token);
+  }
+
   // Преобразование ответа API в наш формат User
   return {
     id: data.id.toString(),
@@ -54,14 +61,6 @@ export const loginAsync = createAsyncThunk(
   async (credentials: LoginCredentials, { rejectWithValue }) => {
     try {
       const user = await loginApi(credentials);
-      
-      // Сохранение токена в зависимости от чекбокса "Запомнить меня"
-      if (credentials.rememberMe) {
-        localStorage.setItem('token', user.token);
-      } else {
-        sessionStorage.setItem('token', user.token);
-      }
-      
       return user;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Ошибка входа');
