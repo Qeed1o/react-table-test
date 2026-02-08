@@ -19,16 +19,10 @@ import {
 import { addProduct } from '../store/slices/productsSlice';
 import { showToast } from '../store/slices/toastSlice';
 import type { AddProductForm, Product } from '../types';
+import { VALIDATION_RULES, validateAddProductForm, hasValidationErrors } from '../utils/validation';
 import FormTextField from './FormTextField';
 import ErrorMessage from './ErrorMessage';
 
-// Константы для валидации
-const VALIDATION_RULES = {
-  REQUIRED_FIELD: 'Поле обязательно для заполнения',
-  INVALID_PRICE: 'Цена должна быть положительным числом',
-  MIN_RATING: 1,
-  MAX_RATING: 5,
-} as const;
 
 // Начальные значения формы
 const INITIAL_FORM_DATA: AddProductForm = {
@@ -71,28 +65,9 @@ const AddProductModal = () => {
 
   // Валидация формы
   const validateForm = useCallback((): boolean => {
-    const errors: Partial<AddProductForm> = {};
-
-    if (!formData.name.trim()) {
-      errors.name = VALIDATION_RULES.REQUIRED_FIELD;
-    }
-
-    if (!formData.price.trim()) {
-      errors.price = VALIDATION_RULES.REQUIRED_FIELD;
-    } else if (isNaN(Number(formData.price)) || Number(formData.price) <= 0) {
-      errors.price = VALIDATION_RULES.INVALID_PRICE;
-    }
-
-    if (!formData.vendor.trim()) {
-      errors.vendor = VALIDATION_RULES.REQUIRED_FIELD;
-    }
-
-    if (!formData.sku.trim()) {
-      errors.sku = VALIDATION_RULES.REQUIRED_FIELD;
-    }
-
+    const errors = validateAddProductForm(formData);
     setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
+    return !hasValidationErrors(errors);
   }, [formData]);
 
   // Создание нового товара
@@ -103,7 +78,7 @@ const AddProductModal = () => {
       price: Number(formData.price),
       vendor: formData.vendor.trim(),
       sku: formData.sku.trim(),
-      rating: Math.floor(Math.random() * VALIDATION_RULES.MAX_RATING) + VALIDATION_RULES.MIN_RATING,
+      rating: Math.floor(Math.random() * (VALIDATION_RULES.MAX_RATING - VALIDATION_RULES.MIN_RATING + 1)) + VALIDATION_RULES.MIN_RATING,
     };
   }, [formData]);
 
