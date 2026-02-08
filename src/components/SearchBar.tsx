@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Box, TextField, InputAdornment } from '@mui/material';
+import { Box, TextField, InputAdornment, CircularProgress } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { useProducts } from '../hooks/useProducts';
 
 const SearchBar = () => {
-  const { search, changeSearch } = useProducts();
+  const { search, changeSearch, isLoading } = useProducts();
   const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
@@ -28,11 +28,16 @@ const SearchBar = () => {
         variant="outlined"
         value={localSearch}
         onChange={handleChange}
+        autoComplete='off'
         placeholder="Поиск по названию, артикулу или вендору"
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <SearchIcon sx={{ color: '#9E9E9E' }} />
+              {isLoading ? (
+                <CircularProgress size={20} sx={{ color: '#9E9E9E' }} />
+              ) : (
+                <SearchIcon sx={{ color: '#9E9E9E' }} />
+              )}
             </InputAdornment>
           ),
         }}

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useAppSelector, useAppDispatch } from './redux';
-import { fetchProductsAsync, setPage, setSorting, setSearch, addProduct, clearError } from '../store/slices/productsSlice';
+import { fetchProductsAsync, setPage, setSorting, setSearch, setLoading, addProduct, clearError } from '../store/slices/productsSlice';
 import type { Product } from '../types';
 
 export const useProducts = () => {
@@ -16,6 +16,7 @@ export const useProducts = () => {
 
   const fetchProducts = useCallback(
     (page?: number, limit?: number, searchQuery?: string) => {
+      dispatch(setLoading(true));
       return dispatch(fetchProductsAsync({
         page: page || pagination.page,
         limit: limit || pagination.limit,

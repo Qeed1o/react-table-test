@@ -31,7 +31,7 @@ const fetchProductsFromAPI = async (page: number, limit: number, search: string)
       id: item.id.toString(),
       name: item.title || item.name || 'Unknown Product',
       price: item.price,
-      vendor: item.brand || 'Unknown',
+      vendor: item.brand || '-',
       sku: item.sku || `SKU-${item.id}`,
       rating: item.rating || 0,
       description: item.description,
@@ -114,6 +114,9 @@ const productsSlice = createSlice({
       state.search = action.payload;
       state.pagination.page = 1; // Сброс страницы при поиске
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
     addProduct: (state, action: PayloadAction<Product>) => {
       state.products.unshift(action.payload);
       state.pagination.total += 1;
@@ -142,5 +145,5 @@ const productsSlice = createSlice({
   },
 });
 
-export const { setPage, setSorting, setSearch, addProduct, clearError } = productsSlice.actions;
+export const { setPage, setSorting, setSearch, setLoading, addProduct, clearError } = productsSlice.actions;
 export default productsSlice.reducer;
