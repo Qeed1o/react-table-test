@@ -15,10 +15,12 @@ import {
   Button,
 } from '@mui/material';
 import {
+  NavigateBefore as NavigateBeforeIcon,
+  NavigateNext as NavigateNextIcon,
   Add as AddIcon,
   MoreVert as MoreVertIcon,
-  Refresh as RefreshIcon,
 } from '@mui/icons-material';
+import { useState } from 'react';
 import type { Product } from '../types';
 
 interface ProductListProps {
@@ -30,24 +32,20 @@ interface ProductListProps {
   };
   onPageChange: (page: number) => void;
   isLoading: boolean;
-  onAddProduct?: () => void;
 }
 
 const ProductList = ({ 
   products, 
   pagination, 
   onPageChange, 
-  isLoading,
-  onAddProduct
+  isLoading
 }: ProductListProps) => {
   
   const getRatingColor = (rating: number) => {
-    return rating < 3 ? '#E53935' : 'inherit';
+    return rating < 3 ? '#E53935' : '#424242';
   };
 
-  const handleRefresh = () => {
-    window.location.reload();
-  };
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
 
   const startIndex = (pagination.page - 1) * pagination.limit + 1;
   const endIndex = Math.min(pagination.page * pagination.limit, pagination.total);
@@ -65,40 +63,53 @@ const ProductList = ({
           <TableHead>
             <TableRow>
               <TableCell padding="checkbox">
-                <Checkbox />
+                <Checkbox 
+                  size="small"
+                  checked={selectedRows.size === products.length && products.length > 0}
+                  indeterminate={selectedRows.size > 0 && selectedRows.size < products.length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedRows(new Set(products.map(p => p.id)));
+                    } else {
+                      setSelectedRows(new Set());
+                    }
+                  }}
+                />
               </TableCell>
-              <TableCell>Наименование</TableCell>
-              <TableCell>Вендор</TableCell>
-              <TableCell>Артикул</TableCell>
-              <TableCell>Оценка</TableCell>
-              <TableCell>Цена, Р</TableCell>
-              <TableCell align="right">
-                <Box display="flex" alignItems="center" gap={1}>
-                  <IconButton onClick={handleRefresh} size="small">
-                    <RefreshIcon />
-                  </IconButton>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />}
-                    onClick={onAddProduct}
-                    sx={{
-                      backgroundColor: '#1976D2',
-                      '&:hover': {
-                        backgroundColor: '#1565C0'
-                      }
-                    }}
-                  >
-                    Добавить
-                  </Button>
-                </Box>
-              </TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Наименование</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Вендор</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Артикул</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Оценка</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Цена, Р</TableCell>
+              <TableCell /> {/* For action buttons */}
             </TableRow>
           </TableHead>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product.id} hover>
+              <TableRow 
+                key={product.id} 
+                hover
+                sx={{
+                  borderLeft: selectedRows.has(product.id) ? '3px solid #1976D2' : '3px solid transparent',
+                  '&:hover': {
+                    backgroundColor: '#FAFAFA'
+                  }
+                }}
+              >
                 <TableCell padding="checkbox">
-                  <Checkbox size="small" />
+                  <Checkbox 
+                    size="small"
+                    checked={selectedRows.has(product.id)}
+                    onChange={(e) => {
+                      const newSelected = new Set(selectedRows);
+                      if (e.target.checked) {
+                        newSelected.add(product.id);
+                      } else {
+                        newSelected.delete(product.id);
+                      }
+                      setSelectedRows(newSelected);
+                    }}
+                  />
                 </TableCell>
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={2}>
@@ -122,17 +133,18 @@ const ProductList = ({
                 <TableCell>{product.vendor}</TableCell>
                 <TableCell>{product.sku}</TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1} minWidth={'max-content'}>
+                  <Box display="flex" alignItems="center" gap={1} minWidth="max-content">
                     <Typography 
                       color={getRatingColor(product.rating)}
                       fontWeight={500}
                     >
-                      {product.rating} 
+                      {product.rating.toFixed(1)}
                     </Typography>
                     <Typography 
+                      color="text.secondary"
                       fontWeight={500}
                     >
-                      / 5
+                      /5
                     </Typography>
                   </Box>
                 </TableCell>
@@ -177,31 +189,67 @@ const ProductList = ({
         </Table>
       </TableContainer>
       
-      <Box 
-        display="flex" 
-        justifyContent="space-between" 
-        alignItems="center" 
-        mt={2}
-        px={1}
-      >
-        <Typography variant="body2" color="text.secondary">
-          Показано {startIndex}-{endIndex} из {pagination.total}
-        </Typography>
-        
-        <Box display="flex" gap={1}>
-          {Array.from({ length: Math.ceil(pagination.total / pagination.limit) }, (_, i) => i + 1).slice(0, 5).map((pageNum) => (
-            <Button
-              key={pageNum}
-              variant={pageNum === pagination.page ? "contained" : "outlined"}
+        <Box 
+          display="flex" 
+          justifyContent="space-between" 
+          alignItems="center" 
+          mt={2}
+          px={1}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Показано {startIndex}-{endIndex} из {pagination.total}
+          </Typography>
+          
+          <Box display="flex" alignItems="center" gap={1}>
+            <IconButton 
               size="small"
-              onClick={() => onPageChange(pageNum)}
-              sx={{ minWidth: 32, height: 32, p: 0 }}
+              onClick={() => onPageChange(Math.max(1, pagination.page - 1))}
+              disabled={pagination.page === 1}
+              sx={{ 
+                border: '1px solid #e0e0e0',
+                '&:hover': { backgroundColor: '#f5f5f5' },
+                '&:disabled': { backgroundColor: '#f5f5f5' }
+              }}
             >
-              {pageNum}
-            </Button>
-          ))}
+              <NavigateBeforeIcon />
+            </IconButton>
+            
+            {Array.from({ length: Math.min(5, Math.ceil(pagination.total / pagination.limit)) }, (_, i) => i + 1).map((pageNum) => (
+              <Button
+                key={pageNum}
+                variant={pageNum === pagination.page ? "contained" : "outlined"}
+                size="small"
+                onClick={() => onPageChange(pageNum)}
+                sx={{ 
+                  minWidth: 32, 
+                  height: 32, 
+                  p: 0,
+                  backgroundColor: pageNum === pagination.page ? '#1976D2' : 'transparent',
+                  borderColor: '#e0e0e0',
+                  color: pageNum === pagination.page ? 'white' : '#424242',
+                  '&:hover': {
+                    backgroundColor: pageNum === pagination.page ? '#1565C0' : '#f5f5f5'
+                  }
+                }}
+              >
+                {pageNum}
+              </Button>
+            ))}
+            
+            <IconButton 
+              size="small"
+              onClick={() => onPageChange(Math.min(Math.ceil(pagination.total / pagination.limit), pagination.page + 1))}
+              disabled={pagination.page >= Math.ceil(pagination.total / pagination.limit)}
+              sx={{ 
+                border: '1px solid #e0e0e0',
+                '&:hover': { backgroundColor: '#f5f5f5' },
+                '&:disabled': { backgroundColor: '#f5f5f5' }
+              }}
+            >
+              <NavigateNextIcon />
+            </IconButton>
+          </Box>
         </Box>
-      </Box>
     </Box>
   );
 };

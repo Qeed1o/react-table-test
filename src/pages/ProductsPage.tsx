@@ -4,7 +4,13 @@ import {
   Container,
   Typography,
   CircularProgress,
+  Button,
+  IconButton,
 } from '@mui/material';
+import {
+  Refresh as RefreshIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
 import { useAppDispatch } from '../hooks/redux';
 import { useProducts } from '../hooks/useProducts';
 import { openModal } from '../store/slices/addProductModalSlice';
@@ -35,6 +41,10 @@ const ProductsPage = () => {
     dispatch(openModal());
   };
 
+  const handleRefresh = () => {
+    fetchProducts();
+  };
+
   if (isLoading && products.length === 0) {
     return (
       <Container>
@@ -48,13 +58,46 @@ const ProductsPage = () => {
   return (
     <Container maxWidth="xl">
       <Box sx={{ py: 4 }}>
+        {/* Header with title and search */}
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h4" component="h1">
-            Список товаров
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+            Товары
           </Typography>
+          <Box sx={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+            <SearchBar />
+          </Box>
+          <Box sx={{ width: 300 }} /> {/* Placeholder for balance */}
         </Box>
 
-        <SearchBar />
+        {/* Section header with action buttons */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h6" component="h2" sx={{ fontWeight: 500 }}>
+            Все позиции
+          </Typography>
+          <Box display="flex" gap={1}>
+            <IconButton 
+              onClick={handleRefresh}
+              disabled={isLoading}
+              sx={{ 
+                border: '1px solid #e0e0e0',
+                '&:hover': { backgroundColor: '#f5f5f5' }
+              }}
+            >
+              <RefreshIcon />
+            </IconButton>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAddModal}
+              sx={{
+                backgroundColor: '#1976d2',
+                '&:hover': { backgroundColor: '#1565c0' }
+              }}
+            >
+              Добавить
+            </Button>
+          </Box>
+        </Box>
 
         {error && (
           <Box mb={2}>
@@ -69,7 +112,6 @@ const ProductsPage = () => {
           pagination={pagination}
           onPageChange={handlePageChange}
           isLoading={isLoading}
-          onAddProduct={handleOpenAddModal}
         />
         
         <AddProductModal />

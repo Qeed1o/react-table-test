@@ -22,14 +22,15 @@ const SearchBar = () => {
   };
 
   return (
-    <Box mb={3}>
+    <Box sx={{ width: 300 }}>
       <TextField
         fullWidth
         variant="outlined"
         value={localSearch}
         onChange={handleChange}
         autoComplete='off'
-        placeholder="Поиск по названию, артикулу или вендору"
+        placeholder="Найти"
+        size="small"
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
