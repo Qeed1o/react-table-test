@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import type { ProductsState, Product } from '../../types';
 
 // Real API call для получения товаров
-const fetchProductsFromAPI = async (page: number, limit: number, search: string): Promise<{products: Product[], total: number}> => {
+const fetchProductsFromAPI = async (page: number, limit: number, search: string, stateProducts: Product[]): Promise<{products: Product[], total: number}> => {
   try {
     const skip = (page - 1) * limit;
     let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
@@ -46,7 +46,7 @@ const fetchProductsFromAPI = async (page: number, limit: number, search: string)
   } catch (error) {
     console.error('API Error:', error);
     // Fallback to mock data if API fails
-    const mockProducts: Product[] = Array.from({ length: 100 }, (_, i) => ({
+    const products: Product[] = stateProducts || Array.from({ length: 100 }, (_, i) => ({
       id: `product-${i + 1}`,
       name: `Товар ${i + 1}`,
       price: Math.floor(Math.random() * 10000) + 100,
@@ -59,12 +59,12 @@ const fetchProductsFromAPI = async (page: number, limit: number, search: string)
     }));
 
     const filteredProducts = search 
-      ? mockProducts.filter(p => 
+      ? products.filter(p => 
           p.name.toLowerCase().includes(search.toLowerCase()) ||
           p.sku.toLowerCase().includes(search.toLowerCase()) ||
           p.vendor.toLowerCase().includes(search.toLowerCase())
         )
-      : mockProducts;
+      : products;
 
     const startIndex = (page - 1) * limit;
     const paginatedProducts = filteredProducts.slice(startIndex, startIndex + limit);
@@ -78,8 +78,9 @@ const fetchProductsFromAPI = async (page: number, limit: number, search: string)
 
 export const fetchProductsAsync = createAsyncThunk(
   'products/fetchProducts',
-  async ({ page, limit, search }: { page: number; limit: number; search: string }) => {
-    const response = await fetchProductsFromAPI(page, limit, search);
+  async ({ page, limit, search }: { page: number; limit: number; search: string }, { getState }) => {
+    const state = (getState() as { products: ProductsState }).products;
+    const response = await fetchProductsFromAPI(page, limit, search, state.products);
     return response;
   }
 );
@@ -140,7 +141,6 @@ const productsSlice = createSlice({
       .addCase(fetchProductsAsync.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'Ошибка загрузки товаров';
-        state.products = [];
       });
   },
 });
