@@ -148,7 +148,15 @@ const LoginPage = () => {
       >
           {/* Icon */}
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-            <CustomIcon color="#1976d2" />
+            <CustomIcon 
+              color="#1976d2"
+              src="/src/assets/logo.svg"
+              alt="Logo"
+              padding="10px"
+              backgroundColor='linear-gradient(360deg, rgba(35, 35, 35, 0) 50%, rgba(35, 35, 35, 0.06) 100%)'
+              boxShadow='0px 12px 8px 0px rgba(0,0,0,0.03)'
+              borderRadius='50%'
+            />
           </Box>
 
           {/* Title */}

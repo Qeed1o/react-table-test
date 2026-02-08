@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { ProductsState, Product } from '../../types';
+import type { ProductsState, Product, RootState } from '../../types';
 
 // Real API call для получения товаров
 const fetchProductsFromAPI = async (page: number, limit: number, search: string, stateProducts: Product[]): Promise<{products: Product[], total: number}> => {
@@ -79,7 +79,7 @@ const fetchProductsFromAPI = async (page: number, limit: number, search: string,
 export const fetchProductsAsync = createAsyncThunk(
   'products/fetchProducts',
   async ({ page, limit, search }: { page: number; limit: number; search: string }, { getState }) => {
-    const state = (getState() as { products: ProductsState }).products;
+    const state = (getState() as RootState).products;
     const response = await fetchProductsFromAPI(page, limit, search, state.products);
     return response;
   }

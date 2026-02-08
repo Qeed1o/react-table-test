@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -7,9 +7,9 @@ import { store } from './store';
 import { useAppSelector } from './hooks/redux';
 import LoginPage from './pages/LoginPage';
 import ProductsPage from './pages/ProductsPage';
-import LoadingPage from './components/LoadingPage';
 import Toast from './components/Toast';
 import { useAuth } from './hooks/useAuth';
+import LoadingPage from './pages/LoadingPage';
 
 const theme = createTheme({
   palette: {
