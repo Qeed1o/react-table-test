@@ -4,12 +4,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { store } from './store';
-import { useAppDispatch, useAppSelector } from './hooks/redux';
-import { checkAuthAsync } from './store/slices/authSlice';
+import { useAppSelector } from './hooks/redux';
 import LoginPage from './pages/LoginPage';
 import ProductsPage from './pages/ProductsPage';
 import LoadingPage from './components/LoadingPage';
 import Toast from './components/Toast';
+import { useAuth } from './hooks/useAuth';
 
 const theme = createTheme({
   palette: {
@@ -23,12 +23,12 @@ const theme = createTheme({
 });
 
 function AppContent() {
-  const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const { checkAuth } = useAuth();
 
   useEffect(() => {
-    dispatch(checkAuthAsync());
-  }, [dispatch]);
+    checkAuth()
+  }, [checkAuth]);
 
   if (isLoading) {
     return <LoadingPage />;
