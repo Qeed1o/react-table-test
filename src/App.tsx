@@ -20,6 +20,9 @@ const theme = createTheme({
       main: '#dc004e',
     },
   },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+  },
 });
 
 function AppContent() {
