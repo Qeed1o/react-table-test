@@ -26,6 +26,7 @@ const ProductsPage = () => {
     error, 
     pagination, 
     sorting,
+    search,
     fetchProducts,
     changePage,
     changeSorting
@@ -38,7 +39,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [sorting, fetchProducts]);
+  }, [search, sorting, fetchProducts]);
 
   const handlePageChange = (newPage: number) => {
     changePage(newPage);

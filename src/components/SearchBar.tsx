@@ -17,6 +17,11 @@ const SearchBar = () => {
     return () => clearTimeout(timeoutId);
   }, [localSearch, search, changeSearch]);
 
+  // Синхронизируем локальное состояние с глобальным при изменении поиска извне
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
   };

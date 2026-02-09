@@ -49,10 +49,17 @@ const productsSlice = createSlice({
     },
     setSorting: (state, action: PayloadAction<{field: keyof Product; direction: 'asc' | 'desc'}>) => {
       state.sorting = action.payload;
+      state.search = ''; // Очищаем поиск при сортировке
+      state.pagination.page = 1; // Сбрасываем страницу
     },
     setSearch: (state, action: PayloadAction<string>) => {
       state.search = action.payload;
       state.pagination.page = 1; // Сброс страницы при поиске
+      // Сбрасываем сортировку при поиске
+      state.sorting = {
+        field: 'name',
+        direction: 'asc',
+      };
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
