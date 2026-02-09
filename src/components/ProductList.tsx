@@ -63,17 +63,6 @@ const paginationButtonStyles = {
   '&:disabled': { backgroundColor: '#f5f5f5' },
 };
 
-const sortableHeaderStyles = {
-  cursor: 'pointer',
-  userSelect: 'none' as const,
-  display: 'flex',
-  alignItems: 'center',
-  gap: 1,
-  '&:hover': {
-    color: '#1976D2',
-  },
-};
-
 const ProductList = memo(({ 
   products, 
   pagination, 
@@ -163,39 +152,74 @@ const ProductList = memo(({
                 />
               </TableCell>
               <TableCell 
-                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                sx={{ 
+                  ...tableHeaderStyles, 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  '&:hover': { color: '#1976D2' }
+                }} 
                 onClick={() => handleSort('name')}
               >
-                Наименование
-                {renderSortIcon('name')}
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  Наименование
+                  {renderSortIcon('name')}
+                </Box>
               </TableCell>
               <TableCell 
-                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                sx={{ 
+                  ...tableHeaderStyles, 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  '&:hover': { color: '#1976D2' }
+                }} 
                 onClick={() => handleSort('vendor')}
               >
-                Вендор
-                {renderSortIcon('vendor')}
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  Вендор
+                  {renderSortIcon('vendor')}
+                </Box>
               </TableCell>
               <TableCell 
-                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                sx={{ 
+                  ...tableHeaderStyles, 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  '&:hover': { color: '#1976D2' }
+                }} 
                 onClick={() => handleSort('sku')}
               >
-                Артикул
-                {renderSortIcon('sku')}
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  Артикул
+                  {renderSortIcon('sku')}
+                </Box>
               </TableCell>
               <TableCell 
-                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                sx={{ 
+                  ...tableHeaderStyles, 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  '&:hover': { color: '#1976D2' }
+                }} 
                 onClick={() => handleSort('rating')}
               >
-                Оценка
-                {renderSortIcon('rating')}
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  Оценка
+                  {renderSortIcon('rating')}
+                </Box>
               </TableCell>
               <TableCell 
-                sx={{ ...tableHeaderStyles, ...sortableHeaderStyles }} 
+                sx={{ 
+                  ...tableHeaderStyles, 
+                  cursor: 'pointer', 
+                  userSelect: 'none',
+                  '&:hover': { color: '#1976D2' }
+                }} 
                 onClick={() => handleSort('price')}
               >
-                Цена, &#x20BD;
-                {renderSortIcon('price')}
+                <Box display="flex" alignItems="center" gap={0.5}>
+                  Цена, &#x20BD;
+                  {renderSortIcon('price')}
+                </Box>
               </TableCell>
               <TableCell /> {/* For action buttons */}
             </TableRow>
